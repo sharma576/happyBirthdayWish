@@ -167,31 +167,45 @@ $('document').ready(function(){
 		
 		var i;
 
-		function scrollMessages(startIndex) {
-			const total = $('.message p').length;
-			$('.message p').hide();
+function scrollMessages(startIndex) {
+    const total = $('.message p').length;
+
 			function showLines(i) {
 				if (i + 2 > total) {
 					$('.cake').fadeIn('fast');
 					return;
 				}
-				$('.message p').hide();
-				let $top    = $('.message p:nth-child(' + i + ')');
+				// Hide all messages and reset CSS
+				$('.message p').hide().css({opacity: 1, position: 'relative', bottom: 0});
+
+				let $bottom = $('.message p:nth-child(' + i + ')');
 				let $center = $('.message p:nth-child(' + (i + 1) + ')');
-				let $bottom = $('.message p:nth-child(' + (i + 2) + ')');
-				$top.fadeIn(1000);
+				let $top = $('.message p:nth-child(' + (i + 2) + ')');
+
+				// Show bottom fully visible at bottom
+				$bottom.show().css({opacity: 1, bottom: 0});
+				// Show center fully visible just above bottom
+				$center.show().css({opacity: 1, bottom: '30px'});
+				// Show top faded and above center
+				$top.show().css({opacity: 0.5, bottom: '60px'});
+
+				// Animate top row moving up and fading out (scrolling up)
 				setTimeout(function () {
-					$center.show();
-				}, 500);
-				setTimeout(function () {
-					$bottom.fadeIn(1000);
-				}, 1000);
-				setTimeout(function () {
-					$top.fadeOut(800);
-					$center.fadeOut(400);
-					showLines(i + 1);
-				}, 3500);
+					$top.animate({bottom: '+=30px', opacity: 0}, 800, function () {
+						$top.hide();
+					});
+					// Animate center moving up to where top was
+					$center.animate({bottom: '+=30px'}, 800);
+					// Animate bottom moving up to where center was
+					$bottom.animate({bottom: '+=30px'}, 800, function () {
+						// After animation completes, fade out bottom row and load next set
+						$bottom.fadeOut(400, function () {
+							showLines(i + 1);
+						});
+					});
+				}, 3000);
 			}
+
 			showLines(startIndex);
 		}
 		scrollMessages(1);
