@@ -171,40 +171,48 @@ function scrollMessages(startIndex) {
     const total = $('.message p').length;
 
 			function showLines(i) {
+				const total = $('.message p').length;
+
 				if (i + 2 > total) {
 					$('.cake').fadeIn('fast');
 					return;
 				}
-				// Hide all messages and reset CSS
-				$('.message p').hide().css({opacity: 1, position: 'relative', bottom: 0});
 
-				let $bottom = $('.message p:nth-child(' + i + ')');
+				// Hide all messages and reset styles
+				$('.message p').hide().css({ opacity: 1, position: 'relative', bottom: 0 });
+
+				let $top = $('.message p:nth-child(' + i + ')');
 				let $center = $('.message p:nth-child(' + (i + 1) + ')');
-				let $top = $('.message p:nth-child(' + (i + 2) + ')');
+				let $bottom = $('.message p:nth-child(' + (i + 2) + ')');
 
-				// Show bottom fully visible at bottom
-				$bottom.show().css({opacity: 1, bottom: 0});
-				// Show center fully visible just above bottom
-				$center.show().css({opacity: 1, bottom: '30px'});
-				// Show top faded and above center
-				$top.show().css({opacity: 0.5, bottom: '60px'});
+				// Initial states
+				$top.show().css({ bottom: '60px', opacity: 0.3 });
+				$center.show().css({ bottom: '30px', opacity: 1 });
+				$bottom.show().css({ bottom: '0px', opacity: 1 });
 
-				// Animate top row moving up and fading out (scrolling up)
+				// Wait 3s then shift all upward
 				setTimeout(function () {
-					$top.animate({bottom: '+=30px', opacity: 0}, 800, function () {
+					// Animate: top disappears
+					$top.animate({ bottom: '90px', opacity: 0 }, 800, function () {
 						$top.hide();
 					});
-					// Animate center moving up to where top was
-					$center.animate({bottom: '+=30px'}, 800);
-					// Animate bottom moving up to where center was
-					$bottom.animate({bottom: '+=30px'}, 800, function () {
-						// After animation completes, fade out bottom row and load next set
-						$bottom.fadeOut(400, function () {
-							showLines(i + 1);
-						});
+
+					// Animate: center → top
+					$center.animate({ bottom: '60px', opacity: 0.3 }, 800);
+
+					// Animate: bottom → center
+					$bottom.animate({ bottom: '30px' }, 800, function () {
+						// Load new message into bottom position
+						let $newMsg = $('.message p:nth-child(' + (i + 3) + ')');
+						if ($newMsg.length) {
+							$newMsg.css({ bottom: 0, opacity: 1, position: 'relative' }).fadeIn(400);
+						}
+						// Repeat with next set
+						showLines(i + 1);
 					});
 				}, 3000);
 			}
+
 
 			showLines(startIndex);
 		}
