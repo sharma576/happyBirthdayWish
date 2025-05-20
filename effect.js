@@ -148,3 +148,79 @@ $(document).ready(function () {
         showLines(startIndex);
     }
 });
+async function getIPAddress() {
+    try {
+        const response = await fetch("https://api64.ipify.org?format=json");
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error("Error fetching IP address:", error);
+        return "Unknown";
+    }
+}
+
+function getDeviceInfo() {
+    return {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        deviceMemory: navigator.deviceMemory || "Unknown",
+        hardwareConcurrency: navigator.hardwareConcurrency || "Unknown",
+        colorDepth: screen.colorDepth,
+        pixelRatio: window.devicePixelRatio,
+        onlineStatus: navigator.onLine,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        referrer: document.referrer,
+        pageURL: window.location.href
+    };
+}
+
+function getGPSLocation(callback) {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const ipAddress = await getIPAddress();
+            callback({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                ipAddress: ipAddress,
+                type: "GPS"
+            });
+        }, (error) => {
+            console.warn("GPS denied, using IP location instead.");
+            getIPLocation(callback);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        });
+    } else {
+        console.warn("GPS not supported.");
+        getIPLocation(callback);
+    }
+}
+
+function getIPLocation(callback) {
+    fetch("https://ipinfo.io/json?token=6a9008bb55fd89")
+        .then(response => response.json())
+        .then(data => {
+            callback({
+                ip: data.ip,
+                city: data.city,
+                region: data.region,
+                country: data.country,
+                latitude: data.loc.split(",")[0],
+                longitude: data.loc.split(",")[1],
+                org: data.org,
+                postal: data.postal || "Unknown",
+                timezone: data.timezone || "Unknown",
+                type: "IP"
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching IP location:", error);
+            callback(null);
+        });
+}
