@@ -7,6 +7,32 @@ body {
 	transition:background-color linear 5s;
 	overflow-x:hidden;
 }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.main-wrapper {
+    min-height: 100%;
+    position: relative;
+    padding-bottom: 80px; /* Height of footer */
+    box-sizing: border-box;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #f8f8f8;
+    color: #777;
+    font-size: 14px;
+    line-height: 20px;
+    border-top: 1px solid #ddd;
+    padding: 20px;
+}
+
 .container {
 	display: none;
 }
